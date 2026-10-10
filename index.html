@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>基于多维 NLP 文本测度的图书评论评分预测研究</title>
+<style>
+  :root {
+    --ink: #1f2937; --muted: #6b7280; --line: #e5e7eb;
+    --brand: #2563eb; --brand-soft: #eff6ff; --ok: #059669; --warn: #d97706;
+    --bg: #f8fafc; --card: #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
+         background: var(--bg); color: var(--ink); line-height: 1.75; }
+  .hero { background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #3b82f6 100%);
+          color: #fff; padding: 64px 20px 56px; text-align: center; }
+  .hero .tag { display: inline-block; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.35);
+               border-radius: 999px; padding: 4px 14px; font-size: 13px; margin-bottom: 18px; letter-spacing: .5px; }
+  .hero h1 { font-size: 30px; line-height: 1.4; max-width: 880px; margin: 0 auto 14px; }
+  .hero .sub { opacity: .92; font-size: 15px; }
+  .hero .meta { margin-top: 22px; font-size: 14px; opacity: .9; }
+  .wrap { max-width: 1020px; margin: 0 auto; padding: 0 20px; }
+  section { margin: 34px 0; }
+  h2 { font-size: 21px; margin-bottom: 6px; padding-left: 12px; border-left: 4px solid var(--brand); }
+  .lead { color: var(--muted); font-size: 14px; margin-bottom: 14px; padding-left: 16px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+          padding: 22px 24px; box-shadow: 0 1px 3px rgba(15,23,42,.05); }
+  .grid { display: grid; gap: 14px; }
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 820px) { .g4, .g3 { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 520px) { .g4, .g3 { grid-template-columns: 1fr; } }
+  .kpi { text-align: center; padding: 18px 10px; }
+  .kpi .v { font-size: 27px; font-weight: 700; color: var(--brand); }
+  .kpi .l { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { padding: 9px 10px; border-bottom: 1px solid var(--line); text-align: left; }
+  th { background: var(--brand-soft); color: #1e3a8a; font-weight: 600; }
+  tr:last-child td { border-bottom: none; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .best { background: #ecfdf5; }
+  .fig { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
+  .fig img { width: 100%; display: block; border-radius: 8px; }
+  .fig figcaption { font-size: 12.5px; color: var(--muted); text-align: center; padding: 8px 4px 2px; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 760px) { .two { grid-template-columns: 1fr; } }
+  pre { background: #0f172a; color: #e2e8f0; padding: 14px 16px; border-radius: 10px;
+        overflow-x: auto; font-size: 13px; line-height: 1.6; }
+  code.inline { background: #eef2ff; color: #3730a3; padding: 1px 6px; border-radius: 5px; font-size: 13px; }
+  .files a { display: flex; justify-content: space-between; gap: 12px; padding: 10px 12px;
+             border: 1px solid var(--line); border-radius: 9px; text-decoration: none;
+             color: var(--ink); font-size: 14px; margin-bottom: 8px; background: #fff; }
+  .files a:hover { border-color: var(--brand); background: var(--brand-soft); }
+  .files .d { color: var(--muted); font-size: 12.5px; white-space: nowrap; }
+  .pill { display: inline-block; font-size: 12px; border-radius: 999px; padding: 2px 10px; margin-right: 6px; }
+  .p-blue { background: var(--brand-soft); color: #1d4ed8; }
+  .p-green { background: #ecfdf5; color: #047857; }
+  .p-amber { background: #fffbeb; color: #b45309; }
+  footer { text-align: center; color: var(--muted); font-size: 13px; padding: 34px 20px 46px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="tag">本科毕业论文模拟稿 · 配套材料仓库</div>
+  <h1>基于多维 NLP 文本测度的图书评论评分预测研究<br>——以豆瓣读书为例</h1>
+  <div class="sub">从评论原文构建 4 维度 20 项可解释文本测度，并用 9 组实验系统检验其对评分的解释与预测能力</div>
+  <div class="meta">作者：朱芷慧　|　学号 202364081　|　大数据管理与应用专业 2 班　|　2023 级　|　管理学院</div>
+</div>
+
+<div class="wrap">
+
+  <section>
+    <h2>核心结果</h2>
+    <p class="lead">语料 DBR-3K：3 000 条中文图书评论，1—5 星评分，8 个图书类别，固定随机种子可一键复现。</p>
+    <div class="grid g4">
+      <div class="card kpi"><div class="v">19 / 20</div><div class="l">测度与评分显著相关（α=0.05）</div></div>
+      <div class="card kpi"><div class="v">0.533</div><div class="l">评分预测最优 MAE（随机森林）</div></div>
+      <div class="card kpi"><div class="v">0.751</div><div class="l">决定系数 R²</div></div>
+      <div class="card kpi"><div class="v">0.782</div><div class="l">三分类宏平均 F1</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>测度体系</h2>
+    <p class="lead">四个维度分别回答：态度如何（SE）、说了什么（SM）、怎么说（LC）、以什么形式说（IS）。</p>
+    <div class="card">
+      <table>
+        <thead><tr><th style="width:18%">维度</th><th style="width:22%">测度编号</th><th>内容</th><th style="width:20%">最强测度 |ρ|</th></tr></thead>
+        <tbody>
+          <tr><td>情感维度</td><td>SE1–SE5</td><td>极性均值、情感强度、情感波动、正负倾向度、情感一致性</td><td class="num">0.462（SE1）</td></tr>
+          <tr><td>语义维度</td><td>SM1–SM4</td><td>主题集中度、信息含量、领域相关度、语义离散度</td><td class="num"><strong>0.742（SM3）</strong></td></tr>
+          <tr><td>语言复杂度</td><td>LC1–LC5</td><td>词汇丰富度、平均句长、词汇难度、长词率、修饰密度</td><td class="num">0.431（LC1）</td></tr>
+          <tr><td>信息结构</td><td>IS1–IS6</td><td>文本长度、句数、标点多样性、标点密度、信息密度、具体性</td><td class="num">0.514（IS1）</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>模型对比</h2>
+    <p class="lead">5 折交叉验证，超参数固定、不针对测试集调优。完整数据见仓库 results/tables/t5_regression.csv。</p>
+    <div class="card">
+      <table>
+        <thead><tr><th>模型</th><th class="num">特征数</th><th class="num">MAE</th><th class="num">RMSE</th><th class="num">R²</th></tr></thead>
+        <tbody>
+          <tr><td>B0 常数基线</td><td class="num">0</td><td class="num">1.075</td><td class="num">1.286</td><td class="num">−0.001</td></tr>
+          <tr><td>B1 文本长度基线</td><td class="num">1</td><td class="num">0.863</td><td class="num">1.067</td><td class="num">0.311</td></tr>
+          <tr><td>B2 单维度：语义维度</td><td class="num">4</td><td class="num">0.616</td><td class="num">0.763</td><td class="num">0.648</td></tr>
+          <tr><td>M1 全测度 + 岭回归</td><td class="num">20</td><td class="num">0.567</td><td class="num">0.710</td><td class="num">0.695</td></tr>
+          <tr class="best"><td><strong>M2 全测度 + 随机森林</strong></td><td class="num">20</td><td class="num"><strong>0.533</strong></td><td class="num"><strong>0.642</strong></td><td class="num"><strong>0.751</strong></td></tr>
+          <tr><td>M3 分群融合（K=4 簇内建模）</td><td class="num">20</td><td class="num">0.539</td><td class="num">0.671</td><td class="num">0.727</td></tr>
+          <tr><td>M4 降共线性子集 + 岭回归</td><td class="num">14</td><td class="num">0.689</td><td class="num">0.869</td><td class="num">0.543</td></tr>
+          <tr><td>M5 熵权综合测度 RQI + 岭回归</td><td class="num">1</td><td class="num">0.971</td><td class="num">1.201</td><td class="num">0.127</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>关键图表</h2>
+    <div class="two">
+      <figure class="fig"><img src="results/figures/fig1_correlation.png" alt="测度-评分相关性排序">
+        <figcaption>图 5-1　20 项测度与评分的秩相关性排序：语义维度包揽前三</figcaption></figure>
+      <figure class="fig"><img src="results/figures/fig2_models.png" alt="模型性能对比">
+        <figcaption>图 5-2　10 个模型的评分预测性能对比（5 折交叉验证）</figcaption></figure>
+      <figure class="fig"><img src="results/figures/fig4_ablation.png" alt="消融实验">
+        <figcaption>图 5-4　留一维度消融：移除语义维度误差上升 27.98%</figcaption></figure>
+      <figure class="fig"><img src="results/figures/fig6_cluster.png" alt="分群异质性">
+        <figcaption>图 5-6　分群后簇内情感—评分关联整体塌缩（Simpson 悖论现象）</figcaption></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>主要结论</h2>
+    <div class="card">
+      <p><span class="pill p-blue">结论 1</span>文本测度对评分的解释存在「投入度—评价」双通道；认真写的评论无论好评差评，在语言上投入都更多，仅用情感得分做评分预测会损失大量信息。</p>
+      <p style="margin-top:10px"><span class="pill p-green">结论 2</span>语义维度是信息贡献最大的维度（移除后 MAE 上升 27.98%），情感维度在联合建模中提供的边际信息有限。</p>
+      <p style="margin-top:10px"><span class="pill p-amber">结论 3</span>三个负结果同样有价值：长词率不显著、熵权综合指数 RQI 失效、简单删除高共线性测度会损失精度——它们为同类研究划定了边界条件。</p>
+      <p style="margin-top:10px"><span class="pill p-blue">方法论提示</span>对已含标签信息的测度空间做聚类，簇内关联会整体塌缩；「聚类 + 簇内回归」类融合方法的增益来源需要重新审视。</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>复现方式</h2>
+    <p class="lead">全部实验固定随机种子 20260517，普通 CPU 约 1.5 分钟跑完。</p>
+    <pre>pip install jieba numpy pandas scipy scikit-learn matplotlib snownlp
+
+python code/corpus_builder.py --n 3000   # 生成 DBR-3K 语料
+python code/experiment.py                # 抽取测度 + 跑 E1–E9 + 出图表
+# 或一键：
+python code/run_all.py</pre>
+  </section>
+
+  <section class="files">
+    <h2>材料清单</h2>
+    <p class="lead">论文、代码、语料、全部实验结果均可直接下载。</p>
+    <a href="paper/基于多维NLP文本测度的图书评论评分预测研究-毕业论文模拟稿.docx"><span>📄 论文正文（Word 版，含封面 / 摘要 / 目录 / 参考文献）</span><span class="d">.docx · 334 KB</span></a>
+    <a href="paper/thesis.md"><span>📝 论文正文（Markdown 源稿，约 1.6 万字）</span><span class="d">.md · 68 KB</span></a>
+    <a href="results/summary.json"><span>📊 关键结论摘要</span><span class="d">.json</span></a>
+    <a href="results/features.csv"><span>🧾 测度明细表（3 000 行 × 25 列）</span><span class="d">.csv</span></a>
+    <a href="data/reviews.csv"><span>📚 DBR-3K 语料</span><span class="d">.csv · 3 000 条</span></a>
+    <a href="code/measures.py"><span>🔬 测度体系实现（4 维度 20 项测度）</span><span class="d">.py</span></a>
+    <a href="code/experiment.py"><span>🧪 实验主程序（E1–E9）</span><span class="d">.py</span></a>
+    <a href="README.md"><span>📘 仓库说明（README）</span><span class="d">.md</span></a>
+  </section>
+
+</div>
+
+<footer>本科毕业论文模拟稿 · 研究设计、数据与实验均由作者完成并开源 · 2026 年 5 月</footer>
+
+</body>
+</html>
