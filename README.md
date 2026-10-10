@@ -6,6 +6,10 @@
 本仓库包含论文全文、可复现的中文文本测度实现、语料、实验脚本与全部实验结果，
 用于支撑论文第 3–5 章的论述。
 
+- 📄 论文在线展示页：<https://intelligent-cloud-mall.app.workbuddy.host/nlp-thesis/>
+- 📦 仓库地址：<https://github.com/sadefefef/nlp-text-measure-thesis>
+- 📝 论文成稿：`paper/基于多维NLP文本测度的图书评论评分预测研究-毕业论文模拟稿.docx`（正文 16,184 中文字）
+
 ## 目录结构
 
 ```
