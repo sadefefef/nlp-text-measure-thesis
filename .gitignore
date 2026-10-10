@@ -7,3 +7,5 @@ venv/
 Thumbs.db
 *.log.bak
 ~$*
+.wbapp_*.genie
+.workbuddy/

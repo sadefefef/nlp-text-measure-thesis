@@ -1,29 +1,52 @@
 # 发布说明（GitHub）
 
-本目录是一个完整、可直接推送的 Git 仓库（含全部论文材料、代码、数据与结果）。
+本目录是一个**完整、可直接推送的 Git 仓库**：已执行 `git init -b main` 并完成首次提交
+（commit `357880d`，30 个文件），包含论文全文、DOCX 成稿、全部源码、语料、结果表与图。
 
-## 推送到 GitHub
+## 一、推送到 GitHub（三步）
 
-在具备 GitHub 访问权限的机器上执行：
+在**能访问 GitHub 的终端**里执行：
 
 ```bash
 cd nlp-book-review-thesis
 
-# 方式一：使用 gh CLI
-gh repo create nlp-text-measure-thesis --public --source=. --push
-
-# 方式二：手动
+# 1) 关联远程仓库（先在 GitHub 网页端新建空仓库 nlp-text-measure-thesis，不要勾选 README）
 git remote add origin https://github.com/<你的用户名>/nlp-text-measure-thesis.git
+
+# 2) 确认分支名为 main
 git branch -M main
+
+# 3) 推送
 git push -u origin main
 ```
 
-推送后可在仓库 Settings → Pages 中开启 GitHub Pages（选择 main 分支根目录），
-即可获得形如 `https://<用户名>.github.io/nlp-text-measure-thesis/` 的外网访问地址，
-与本地 `index.html` 完全一致。
+若本机装了 `gh` CLI，也可以一条命令完成「建仓 + 推送」：
 
-## 说明
+```bash
+gh repo create nlp-text-measure-thesis --public --source=. --push
+```
 
-- 本仓库在制作环境中已完成 `git init` 与全部提交；
-- 若在受控网络环境下（github.com 不可达），可先在本地完成审查，再于具备外网的机器上执行上述推送；
-- 论文在线版（本目录 `index.html`）已通过 WorkBuddy「应用发布」部署到外网，见交付说明中的在线访问地址。
+仓库建好后，本目录下的 `push-to-github.sh` 也可直接执行（需先填好用户名）。
+
+## 二、开启外网访问（可选）
+
+推送完成后，在仓库 **Settings → Pages** 中选择 `main` 分支根目录，
+即可得到形如 `https://<用户名>.github.io/nlp-text-measure-thesis/` 的地址，
+内容与本地 `index.html` 完全一致（全部为相对路径，可直接托管）。
+
+## 三、当前已有的外网访问地址
+
+论文在线版已通过 WorkBuddy「应用发布」上线，无需等待 GitHub Pages：
+
+- 论文在线展示页：`https://intelligent-cloud-mall.app.workbuddy.host/nlp-thesis/`
+
+## 四、说明
+
+- 若在受控网络环境下推送报 `schannel: CRYPT_E_NO_REVOCATION_CHECK`，这是证书吊销检查被拦截导致，
+  可用下述方式绕过后重试（仅影响本机 git 进程，不改变系统设置）：
+
+  ```bash
+  GIT_SSL_NO_VERIFY=1 git -c http.sslBackend=openssl push -u origin main
+  ```
+
+- 仓库不含任何密钥或个人信息；`.wbapp_*.genie`、`.workbuddy/` 等本地运行产物已写入 `.gitignore`。
